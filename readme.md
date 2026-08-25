@@ -15,10 +15,6 @@ Repo que tiene una colecion de scripts para jugar 🧠 habilidosos en el juego: 
 
 2. Copiar el contenido del archivo `El Idolo menu.js` y pegarlo en la consola
 
-Por si te perdiste:
-
-Aca va un video
-
 ## Fotos
 
 ![Menu](./assets/menu.png)
@@ -26,8 +22,23 @@ Aca va un video
 > [!CAUTION]
 > Siempre parar el script una vez se termino de usar, nnunca tener mas de un script activo al mismo tiempo
 
+## Videos
 
-## Para devs
+### Instalación
+
+### Los alcanzapelotas
+
+### Jugada personal
+
+### La corrida
+
+### La pizarra del DT
+
+### La seña del DT
+
+##
+
+## Para devs 🤓
 
 Si por algun motivo queres cambiar algun script, cambiado y despues corres el siguiente comando
 
