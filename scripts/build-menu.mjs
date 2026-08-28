@@ -15,6 +15,8 @@ const SCRIPT_ICONS = {
   "La senia del DT": "👁️",
   "Los alcanzapelotas": "👕",
   "Ta-te-ti": "❌⭕",
+  "El codigo": "🧑‍💻",
+  "Copa Intercontinental": "🏆"
 };
 
 const files = (await readdir(directory, { withFileTypes: true }))

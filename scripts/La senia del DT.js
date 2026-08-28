@@ -4,19 +4,43 @@
   const savedButtons = [];
   let inactivityTimer = null;
 
+  const RESTART_SELECTOR =
+    "button.elidolo-pop";
+
   function clickSavedButtons() {
     while (savedButtons.length > 0) {
       const button = savedButtons.shift();
-      button.click();
+
+      if (button.isConnected) {
+        button.click();
+      }
     }
+
+    checkForRestart();
   }
 
   function resetInactivityTimer() {
-    if (inactivityTimer) clearTimeout(inactivityTimer);
+    if (inactivityTimer) {
+      clearTimeout(inactivityTimer);
+    }
+
     inactivityTimer = setTimeout(clickSavedButtons, 1000);
   }
 
+  function checkForRestart() {
+    const restartButton = document.querySelector(RESTART_SELECTOR);
+
+    if (restartButton) {
+      restartButton.click();
+
+      // Start waiting for the next round.
+      resetInactivityTimer();
+    }
+  }
+
   const observer = new MutationObserver((mutations) => {
+    let foundMatchingButton = false;
+
     for (const mutation of mutations) {
       if (
         mutation.type === "attributes" &&
@@ -29,12 +53,17 @@
           if (!savedButtons.includes(button)) {
             savedButtons.push(button);
           }
+
+          foundMatchingButton = true;
         }
       }
     }
 
-    // Any mutation (matching or not) resets the quiet-period clock
-    resetInactivityTimer();
+    // Only reset the timer when we actually find a button
+    // that needs to be clicked.
+    if (foundMatchingButton) {
+      resetInactivityTimer();
+    }
   });
 
   observer.observe(container, {
