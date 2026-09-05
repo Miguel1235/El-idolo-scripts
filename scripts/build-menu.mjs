@@ -16,7 +16,9 @@ const SCRIPT_ICONS = {
   "Los alcanzapelotas": "👕",
   "Ta-te-ti": "❌⭕",
   "El codigo": "🧑‍💻",
-  "Copa Intercontinental": "🏆"
+  "Copa Intercontinental": "🏆",
+  "El Hueco": "🚪",
+  "El palpito": "🃏",
 };
 
 const files = (await readdir(directory, { withFileTypes: true }))
@@ -81,6 +83,12 @@ const runtime = `(() => {
         transform .2s,
         background .2s,
         box-shadow .2s;
+      touch-action: none;
+      cursor: grab;
+    }
+
+    .launcher:active {
+      cursor: grabbing;
     }
 
     .launcher:hover {
@@ -94,12 +102,12 @@ const runtime = `(() => {
     .panel {
       position: absolute;
       right: 0;
-      bottom: 78px;
-      width: 318px;
-      max-height: min(560px, calc(100vh - 118px));
+      bottom: 70px;
+      width: 270px;
+      max-height: min(480px, calc(100vh - 100px));
       overflow: auto;
       border: 2px solid #8ce69f;
-      border-radius: 19px;
+      border-radius: 16px;
       background:
         repeating-linear-gradient(
           90deg,
@@ -108,7 +116,7 @@ const runtime = `(() => {
         );
       color: #fff;
       box-shadow: 0 20px 56px #001d0fc7;
-      padding: 12px;
+      padding: 9px;
       transform: translateY(9px) scale(.97);
       opacity: 0;
       pointer-events: none;
@@ -135,15 +143,21 @@ const runtime = `(() => {
       display: flex;
       align-items: center;
       gap: 8px;
-      margin: 1px 2px 11px;
-      padding: 9px 10px;
+      margin: 1px 2px 8px;
+      padding: 7px 9px;
       border: 1px solid #d9ffdf96;
-      border-radius: 10px;
+      border-radius: 9px;
       background: #003d22b8;
-      font-size: 16px;
+      font-size: 14px;
       font-weight: 800;
       letter-spacing: .2px;
       text-transform: uppercase;
+      touch-action: none;
+      cursor: grab;
+    }
+
+    .title:active {
+      cursor: grabbing;
     }
 
     .title::after {
@@ -158,39 +172,43 @@ const runtime = `(() => {
       display: none;
     }
 
+    .list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
     .script {
       position: relative;
       display: flex;
       align-items: center;
-      gap: 9px;
-      padding: 10px 7px;
-      border-top: 1px solid #e8ffe833;
+      gap: 8px;
+      padding: 7px 8px;
+      border: 1px solid #e8ffe84d;
+      border-radius: 9px;
       background: #003d1d4d;
-    }
-
-    .script:first-child {
-      border-top: 0;
     }
 
     .script:hover {
       background: #003a1fcc;
+      border-color: #e8ffe880;
     }
 
     .name {
       flex: 1;
       min-width: 0;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 750;
-      line-height: 1.25;
+      line-height: 1.2;
     }
 
     .state {
       display: flex;
       align-items: center;
       gap: 5px;
-      font-size: 10px;
+      font-size: 9px;
       color: #d7ffe0;
-      margin-top: 4px;
+      margin-top: 3px;
       text-transform: uppercase;
       letter-spacing: .7px;
     }
@@ -206,12 +224,12 @@ const runtime = `(() => {
 
     .toggle {
       border: 1px solid #cbffdc;
-      border-radius: 8px;
-      min-width: 64px;
-      padding: 7px 8px;
+      border-radius: 7px;
+      min-width: 56px;
+      padding: 6px 7px;
       background: #f2fff4;
       color: #075b30;
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 900;
       letter-spacing: .35px;
       text-transform: uppercase;
@@ -238,15 +256,15 @@ const runtime = `(() => {
       position: relative;
       width: 100%;
       border: 1px solid #fff8bc;
-      border-radius: 8px;
+      border-radius: 7px;
       background: #173b27;
       color: #fff8bd;
-      padding: 9px;
-      font-size: 11px;
+      padding: 7px;
+      font-size: 10px;
       font-weight: 900;
       letter-spacing: .65px;
       text-transform: uppercase;
-      margin-top: 11px;
+      margin-top: 8px;
     }
 
     .stop-all:hover {
@@ -277,6 +295,70 @@ const runtime = `(() => {
   const panel = shadow.querySelector(".panel");
   const launcher = shadow.querySelector(".launcher");
   const list = shadow.querySelector(".list");
+  const titleBar = shadow.querySelector(".title");
+
+  let didDrag = false;
+
+  function makeDraggable(handle) {
+    let dragging = false;
+    let pointerId = null;
+    let startX = 0;
+    let startY = 0;
+    let startLeft = 0;
+    let startTop = 0;
+
+    handle.addEventListener("pointerdown", (event) => {
+      if (event.button !== 0) return;
+
+      const rect = root.getBoundingClientRect();
+
+      dragging = true;
+      pointerId = event.pointerId;
+      startX = event.clientX;
+      startY = event.clientY;
+      startLeft = rect.left;
+      startTop = rect.top;
+
+      root.style.left = \`\${startLeft}px\`;
+      root.style.top = \`\${startTop}px\`;
+      root.style.right = "auto";
+      root.style.bottom = "auto";
+
+      handle.setPointerCapture(pointerId);
+    });
+
+    handle.addEventListener("pointermove", (event) => {
+      if (!dragging || event.pointerId !== pointerId) return;
+
+      const dx = event.clientX - startX;
+      const dy = event.clientY - startY;
+
+      if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
+        didDrag = true;
+      }
+
+      const rect = root.getBoundingClientRect();
+      const maxLeft = Math.max(window.innerWidth - rect.width, 0);
+      const maxTop = Math.max(window.innerHeight - rect.height, 0);
+
+      root.style.left = \`\${Math.min(Math.max(startLeft + dx, 0), maxLeft)}px\`;
+      root.style.top = \`\${Math.min(Math.max(startTop + dy, 0), maxTop)}px\`;
+    });
+
+    const stopDragging = (event) => {
+      if (!dragging || event.pointerId !== pointerId) return;
+
+      dragging = false;
+      handle.releasePointerCapture(pointerId);
+      pointerId = null;
+    };
+
+    handle.addEventListener("pointerup", stopDragging);
+    handle.addEventListener("pointercancel", stopDragging);
+  }
+
+  makeDraggable(launcher);
+  makeDraggable(titleBar);
 
   const active = new Map();
 
@@ -504,6 +586,11 @@ const runtime = `(() => {
   }
 
   launcher.addEventListener("click", () => {
+    if (didDrag) {
+      didDrag = false;
+      return;
+    }
+
     const open = panel.classList.toggle("open");
 
     launcher.setAttribute(
