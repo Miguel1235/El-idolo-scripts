@@ -4,7 +4,6 @@ const directory = new URL("./", import.meta.url);
 
 const outputName = "El Idolo menu.js";
 
-// Customize the emoji for each script here.
 const SCRIPT_ICONS = {
   "El aguante": "🛡️",
   "La corrida": "🎯",
